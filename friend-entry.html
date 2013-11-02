@@ -1,0 +1,38 @@
+<!--
+    'id',
+    'name',
+    'screen_name',
+    'location',
+    'description',
+    'followers_count',
+    'friends_count',
+    'profile_image_url',
+    'status',
+      'created_at',
+      'id',
+      'text'
+-->
+
+<li style="width: 20em; border-top: 1px solid #333; border-bottom: 1px solid #999">
+  <div>
+    <a href="//twitter.com/{{ screen_name }}" target="_blank">
+      <img class="avatar" src="{{ profile_image_url }}">
+      <div class="identity" style="clear: both">
+        <strong class="name">{{ name }}</strong><br>
+        @{{ screen_name }}
+      </div>
+    </a>
+
+    <dl>
+      <dt class="description">Description:</dt>
+      <dd><p>{{ description }}</p></dd>
+      <dt class="location">Location:</dt>
+      <dd><p>{{ location }}</p></dd>
+      <dt class="last-status">Last Status:</dt>
+      <dd>
+        <span class="date">{{ status.created_at }}</span>
+        <p>{{ status.text }}</p>
+      </dd>
+    </dl>
+  </div>
+</li>

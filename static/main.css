@@ -1,0 +1,39 @@
+body {
+  font-family: 'Fira Sans';
+}
+
+.avatar {
+  margin: auto;
+  display: block;
+}
+
+dt {
+  font-weight: bold;
+}
+
+ul {
+  margin: 0;
+  padding: 5px 10px;
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+}
+
+li {
+  padding: 10px 0;
+}
+
+.identity {
+  text-align: center;
+}
+
+.name {
+  color: #333;
+}
+
+.date {
+  font-size: 12px;
+  color: #aaa;
+}
