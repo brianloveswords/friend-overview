@@ -1,21 +1,21 @@
 const fs = require('fs')
 const path = require('path')
 const http = require('http')
-const db = require('level')('db')
+const db = require('./db')
 const JSONStream = require('JSONStream')
 const map = require('map-stream')
 const tpl = require('./templater.js')
 const url = require('url')
 const mime = require('mime')
 
+const sub = db.sublevel('user-by-last-tweet')
+
 function showUserList(req, res) {
   res.setHeader('Content-Type', 'text/html; charset=utf-8')
   res.write(tpl.header({
-    title: 'eatabaggadicks'
+    title: 'Friend Overview'
   }))
-  db.createValueStream({
-    start: 'user-by-last-tweet-',
-    end: 'user-by-last-tweet-\xff',
+  sub.createValueStream({
     valueEncoding: 'json',
   }).pipe(map(fixDate))
     .pipe(map(makeWriter(res)))

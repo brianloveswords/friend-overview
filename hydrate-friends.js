@@ -1,29 +1,19 @@
 const concat = require('concat-stream')
 const map = require('map-stream')
 const client = require('./twitter-client')
-const db = require('level')('db')
+const db = require('./db')
 
 const LIMIT = 100
 const START_FROM = ''
 
-function getUserStream(fromId) {
-  const from = fromId
-    ? '' + (parseInt(fromId, 10) + 1)
-    : ''
-
-  return db.createReadStream({
-    start: 'user-ids-' + from,
-    end: 'user-ids-\xff',
-    limit: LIMIT
-  })
-}
+const userIdSub = db.sublevel('user-ids')
+const userInfoSub = db.sublevel('user-info')
 
 var TOTAL = 0
 
-function hydrateUsers(fromId, callback, _total) {
+function hydrateUsers(fromId, callback) {
   if (typeof fromId == 'function')
     callback = fromId, fromId = null
-
 
   getUserStream(fromId)
     .pipe(concat(getDataForUsers))
@@ -34,13 +24,12 @@ function hydrateUsers(fromId, callback, _total) {
 
     TOTAL += users.length
 
-    const userList = users
-      .map(function (o) { return o.value })
-      .join(',')
-
-    console.dir(users)
-
+    const userList = users.map(pluck('value')).join(',')
     const lastUser = users[users.length-1].value;
+
+    console.log('processing %s to %s',
+                fromId || 'beginning',
+                lastUser)
 
     client.get('users/lookup', {
       user_id: userList
@@ -48,23 +37,13 @@ function hydrateUsers(fromId, callback, _total) {
       if (err)
         throw err
 
-      const batchOps = usersWithData.map(function(userWithData) {
-        return {
-          type: 'put',
-          key: keyFromId(userWithData.id),
-          value: userWithData,
-          valueEncoding: 'json',
-        }
-      })
-
-      db.batch(batchOps, function (err) {
-        if (err) throw err
-        return nextBatch()
-      })
+      const batchOps = usersWithData.map(makeBatchOp)
+      userInfoSub.batch(batchOps, nextBatch)
     })
 
-    function nextBatch() {
-      return hydrateUsers(lastUser, callback, users.length)
+    function nextBatch(err) {
+      if (err) throw err
+      return hydrateUsers(lastUser, callback)
     }
   }
 }
@@ -73,4 +52,28 @@ hydrateUsers(START_FROM, function (totalRows) {
   console.log('inserted %s rows', totalRows)
 })
 
-function keyFromId(id) { return 'user-info-'+id }
+function makeBatchOp(userWithData) {
+  return {
+    type: 'put',
+    key: userWithData.id,
+    value: userWithData,
+    valueEncoding: 'json',
+  }
+}
+
+function pluck(key) {
+  return function (o) {
+    return o[key]
+  }
+}
+
+function getUserStream(fromId) {
+  const from = fromId
+    ? '' + (parseInt(fromId, 10) + 1)
+    : ''
+
+  return userIdSub.createReadStream({
+    start: from,
+    limit: LIMIT
+  })
+}

@@ -1,10 +1,11 @@
-const db = require('level')('db')
+const db = require('./db')
 const map = require('map-stream')
 
-db.createReadStream({
-  start: 'user-info-',
-  end: 'user-info-\xff',
-  valueEncoding: 'json',
+const userInfoSub = db.sublevel('user-info')
+const byTweetSub = db.sublevel('user-by-last-tweet')
+
+userInfoSub.createReadStream({
+  valueEncoding: 'json'
 }).pipe(map(function (entry, next) {
   const status = entry.value.status
 
@@ -12,12 +13,9 @@ db.createReadStream({
     console.log('%s has no statuses?', entry.value.screen_name)
     return next()
   }
-
   const date = new Date(status.created_at).toISOString()
-
-  entry.key = 'user-by-last-tweet-' + date
-
+  entry.key = date + '-' + entry.value.id
   return next(null, entry)
-})).pipe(db.createWriteStream({
+})).pipe(byTweetSub.createWriteStream({
   valueEncoding: 'json'
 }))
