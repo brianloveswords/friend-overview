@@ -5,15 +5,24 @@ test('rate limiter', function (t) {
   var first, second, third
 
   const opts = { window: 60, limit: 180 }
-  const getDate = rateLimit(function (callback) {
+  const getDate = rateLimit(function getDate(callback) {
     process.nextTick(function () { return callback(Date.now()) })
   }, opts)
 
-  getDate(function (date) { first = date; proceed() })
-  getDate(function (date) { second = date; proceed() })
-  getDate(function (date) { third = date; proceed() })
+  const ops = [
+    getDate(function (date) { proceed() }),
+    getDate(function (date) { proceed() }),
+    getDate(function (date) { proceed() }),
+    getDate(function (date) { proceed() }),
+    getDate(function (date) { proceed() }),
+    getDate(function (date) { proceed() }),
+    getDate(function (date) { first = date; proceed() }),
+    getDate(function (date) { second = date; proceed() }),
+    getDate(function (date) { third = date; proceed() }),
+  ]
 
-  var waiting = 3
+  var waiting = ops.length
+
   function proceed() {
     if (--waiting > 0) return
 
@@ -21,8 +30,8 @@ test('rate limiter', function (t) {
     const diff2 = third - second
 
     t.notEqual(first, second, 'should not be the same')
-    t.ok(diff1 > 300, 'diff1 should be at least 300 ms')
-    t.ok(diff2 > 300, 'diff2 should be at least 300 ms')
+    t.ok(diff1 >= 333, 'diff1 should be at least 333 ms')
+    t.ok(diff2 >= 333, 'diff2 should be at least 333 ms')
     t.end()
   }
 
