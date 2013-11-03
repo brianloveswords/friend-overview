@@ -20,7 +20,6 @@ test('db.purgeDatabase', function (t) {
         if (err) throw err
 
         db.purgeDatabase(sub, function () {
-
           sub.get('pizza', function (err, data) {
             t.ok(err, 'should have an error')
             t.same(err.type, 'NotFoundError', 'should be a `not found` error')
@@ -31,10 +30,7 @@ test('db.purgeDatabase', function (t) {
             t.same(data, 'ham', 'should have ham sandwich')
           })
         })
-
       })
     })
   })
-
-
 })
