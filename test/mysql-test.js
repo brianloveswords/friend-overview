@@ -1,6 +1,10 @@
 const db = require('../lib/models/db')
 const friends = require('../lib/models/friendship')
 const cache = require('../lib/models/cache-op')
+const users = require('../lib/models/user')
+
+// users.createKeyStream()
+//   .on('data', console.dir.bind(console))
 
 // var instream = friends.createWriteStream({})
 
@@ -43,9 +47,9 @@ const cache = require('../lib/models/cache-op')
 //   console.dir(fresh)
 // })
 
-cache.update('getFriends', function (err, row, meta) {
-  console.error('row', row)
-  console.error('meta', meta)
+// cache.update('getFriends', function (err, row, meta) {
+//   console.error('row', row)
+//   console.error('meta', meta)
 
-  db.end()
-})
+//   db.end()
+// })

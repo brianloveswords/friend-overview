@@ -16,6 +16,7 @@ test('hydrate friends', function (t) {
       t.same(ids.length, users.length, 'should have same amount of users')
       t.end()
     }
-
   })
+
+  getFriends.db.end()
 })
