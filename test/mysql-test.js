@@ -54,19 +54,26 @@ const users = require('../lib/models/user')
 //   db.end()
 // })
 
-friends.createReadStream({
-  screen_name: 'brianloveswords',
-}, {
+var count = 0
+friends.createReadStream({}, {
+  debug: true,
   relationships: {
+    profile: {
+      table: 'profile',
+      type: 'hasOne',
+      field: 'screen_name',
+      optional: true,
+    },
     friend: {
-      table: 'friendship',
+      table: 'user',
       type: 'hasMany',
-      foreignField: 'id',
+      field: 'id',
+      pivot: 'screen_name',
     }
   }
 }).on('data', function (row, rel) {
-  console.dir(row)
-  console.dir(rel)
+  console.dir(row.friend.length)
 }).on('end', function () {
+  console.log('got', count, 'rows')
   friends.end()
 })
