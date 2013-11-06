@@ -7,5 +7,7 @@ test('getting friends', function (t) {
     t.ok(ids, 'should have ids')
     t.ok(ids.length, 'should have more than 0 ids')
     t.end()
+
+    getFriends.db.end()
   })
 })
