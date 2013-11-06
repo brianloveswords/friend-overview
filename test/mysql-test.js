@@ -2,6 +2,7 @@ const db = require('../lib/models/db')
 const friends = require('../lib/models/friendship')
 const cache = require('../lib/models/cache-op')
 const users = require('../lib/models/user')
+const profile = require('../lib/models/profile')
 
 // users.createKeyStream()
 //   .on('data', console.dir.bind(console))
@@ -61,17 +62,19 @@ friends.createReadStream({}, {
     profile: {
       table: 'profile',
       type: 'hasOne',
-      field: 'screen_name',
+      foreign: 'screen_name',
+      from: 'screen_name',
       optional: true,
     },
     friend: {
       table: 'user',
       type: 'hasMany',
-      field: 'id',
+      foreign: 'id',
       pivot: 'screen_name',
     }
   }
 }).on('data', function (row, rel) {
+  console.dir(row.profile)
   console.dir(row.friend.length)
 }).on('end', function () {
   console.log('got', count, 'rows')
