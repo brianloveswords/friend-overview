@@ -15,7 +15,7 @@ test('build indexes', function (t) {
     db.createValueStream({valueEncoding: 'binary'})
       .on('data', function (user) {
         count++
-        // console.log('%s (%s)', user.screen_name, user.id)
+        // console.log('%s (%s tweets)', user.screen_name, user.recent_statuses.length)
       })
       .on('close', function () {
         const end = Date.now()
