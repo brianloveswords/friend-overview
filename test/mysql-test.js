@@ -53,3 +53,20 @@ const users = require('../lib/models/user')
 
 //   db.end()
 // })
+
+friends.createReadStream({
+  screen_name: 'brianloveswords',
+}, {
+  relationships: {
+    friend: {
+      table: 'friendship',
+      type: 'hasMany',
+      foreignField: 'id',
+    }
+  }
+}).on('data', function (row, rel) {
+  console.dir(row)
+  console.dir(rel)
+}).on('end', function () {
+  friends.end()
+})
